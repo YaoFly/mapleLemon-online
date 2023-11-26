@@ -110,7 +110,7 @@ public class ChannelServer {
     private String ShopPack;
     Connection shareCon;
     private static final Logger log = Logger.getLogger(ChannelServer.class);
-    private final ManagerSin a = new ManagerSin();
+//    private final ManagerSin a = new ManagerSin();
 
     private ChannelServer(int channel) {
         this.channel = channel;

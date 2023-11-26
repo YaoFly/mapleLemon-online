@@ -22,7 +22,8 @@ public class ServerConstants implements Runnable {
     public static boolean isLinux = !"windows".equals(System.getProperty("sun.desktop"));
     public static String linuxDumpPath = "/opt/lampp/bin/";
     public static String windowsDumpPath = "..\\mysql\\bin\\";
-    public static byte[] NEXON_IP = {(byte) 127, (byte) 0, (byte) 0, 1};
+    public static byte[] NEXON_IP = {(byte) 124, (byte) 223, (byte) 202, (byte)178};
+//    public static byte[] NEXON_IP = {(byte) 127, (byte) 0, (byte) 0, (byte)1};
     public static String IP = "127.0.0.1";
 
     public static boolean PollEnabled = false;

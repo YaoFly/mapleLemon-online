@@ -403,7 +403,8 @@ public final class MapleMonster extends AbstractLoadedMapleLife {
                 exp /= 2;
             }
 
-            int acExpRate = ChannelServer.getInstance(map.getChannel()).getExpRate(attacker.getWorld());
+//            int acExpRate = ChannelServer.getInstance(map.getChannel()).getExpRate(attacker.getWorld());
+            int acExpRate = 1;
             if ((attacker.getLevel() < 10) && (GameConstants.is新手职业(0))) {
                 acExpRate = 1;
             }
