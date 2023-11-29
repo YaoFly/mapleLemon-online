@@ -28,6 +28,8 @@ import handling.channel.handler.AttackInfo;
 import handling.world.WorldGuildService;
 import handling.world.guild.MapleGuild;
 import java.awt.Point;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Iterator;
@@ -83,7 +85,13 @@ public class MaplePacketCreator {
 
         mplew.write(SendPacketOpcode.SERVER_IP.getValue());
         mplew.writeShort(0);
-        mplew.write(ServerConstants.NEXON_IP);
+//        mplew.write(ServerConstants.NEXON_IP);
+        try {
+            mplew.write(InetAddress.getByName(ServerConstants.IP).getAddress());
+        } catch (UnknownHostException e) {
+            FileoutputUtil.log("获取服务器IP失败");
+            throw new RuntimeException(e);
+        }
         mplew.writeShort(port);
         mplew.writeInt(charId);
         mplew.write(0);
@@ -102,7 +110,13 @@ public class MaplePacketCreator {
 
         mplew.write(SendPacketOpcode.CHANGE_CHANNEL.getValue());
         mplew.write(1);
-        mplew.write(ServerConstants.NEXON_IP);
+//        mplew.write(ServerConstants.NEXON_IP);
+        try {
+            mplew.write(InetAddress.getByName(ServerConstants.IP).getAddress());
+        } catch (UnknownHostException e) {
+            FileoutputUtil.log("获取服务器IP失败");
+            throw new RuntimeException(e);
+        }
         mplew.writeShort(port);
 
         return mplew.getPacket();
@@ -755,6 +769,17 @@ public class MaplePacketCreator {
         mplew.write(SendPacketOpcode.MOVE_PLAYER.getValue());
         mplew.writeInt(chrId);
         mplew.write(slea.read((int)slea.available()));
+
+        return mplew.getPacket();
+    }
+
+    public static byte[] movePlayer(int cid, List<LifeMovementFragment> moves, Point startPos) {
+        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+
+        mplew.writeShort(SendPacketOpcode.MOVE_PLAYER.getValue());
+        mplew.writeInt(cid);
+        mplew.writePos(startPos);
+        PacketHelper.serializeMovementList(mplew, moves);
 
         return mplew.getPacket();
     }

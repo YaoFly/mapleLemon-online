@@ -22,7 +22,7 @@ public class ServerConstants implements Runnable {
     public static boolean isLinux = !"windows".equals(System.getProperty("sun.desktop"));
     public static String linuxDumpPath = "/opt/lampp/bin/";
     public static String windowsDumpPath = "..\\mysql\\bin\\";
-    public static byte[] NEXON_IP = {(byte) 124, (byte) 223, (byte) 202, (byte)178};
+//    public static byte[] NEXON_IP = {(byte) 124, (byte) 223, (byte) 202, (byte)178};
 //    public static byte[] NEXON_IP = {(byte) 127, (byte) 0, (byte) 0, (byte)1};
     public static String IP = "127.0.0.1";
 
@@ -123,7 +123,7 @@ public class ServerConstants implements Runnable {
         SQL_TIMEOUT = ServerProperties.getProperty("db_timeout", SQL_TIMEOUT);
         SQL_SAVETIME = ServerProperties.getProperty("db_savetime", SQL_SAVETIME);
 
-        IP = ServerProperties.getProperty("IP", IP);
+        IP = ServerProperties.getProperty("ip", IP);
         USE_FIXED_IV = ServerProperties.getProperty("USE_FIXED_IV", USE_FIXED_IV);
 
         MAPLE_VERSION = ServerProperties.getProperty("MAPLE_VERSION", MAPLE_VERSION);
