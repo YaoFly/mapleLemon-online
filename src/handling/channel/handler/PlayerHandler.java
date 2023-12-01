@@ -860,9 +860,9 @@ public class PlayerHandler {
             slea.skip(2);
             if (chr.isHidden()) {
                 chr.setLastRes(res);
-                chr.getMap().broadcastGMMessage(chr, MaplePacketCreator.movePlayer(chr.getId(), slea), false);
+                c.getPlayer().getMap().broadcastGMMessage(c.getPlayer(), MaplePacketCreator.movePlayer(chr.getId(), res, Original_Pos), false);
             } else {
-                chr.getMap().broadcastMessage(chr, MaplePacketCreator.movePlayer(chr.getId(), slea), false);
+                c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.movePlayer(chr.getId(), res, Original_Pos), false);
             }
 
             MovementParse.updatePosition(res, chr, 0);
