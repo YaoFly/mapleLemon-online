@@ -43,9 +43,9 @@ import server.quest.MapleQuest;
 import server.skill.冒险家.勇士;
 import server.skill.冒险家.独行客;
 import tools.FileoutputUtil;
+import tools.HexTool;
 import tools.MaplePacketCreator;
-import tools.data.input.LittleEndianAccessor;
-import tools.data.input.SeekableLittleEndianAccessor;
+import tools.data.input.*;
 import tools.packet.InventoryPacket;
 import tools.packet.MTSCSPacket;
 import tools.packet.SkillPacket;
@@ -835,40 +835,39 @@ public class PlayerHandler {
      * @param c
      * @param chr
      */
-    public static void MovePlayer(SeekableLittleEndianAccessor slea, MapleClient c, MapleCharacter chr) {
+    public static void MovePlayer(SeekableLittleEndianAccessor source, MapleClient c, MapleCharacter chr) {
         if (chr == null) {
             return;
         }
-        slea.readByte();
-        Point Original_Pos = chr.getPosition();
-        slea.readShort(); // position
-        slea.readShort();
-        List res;
-        try {
-            res = MovementParse.parseMovement(slea, 1, chr);
-        } catch (ArrayIndexOutOfBoundsException e) {
-            FileoutputUtil.log("AIOBE Type1:\r\n" + slea.toString(true));
-            return;
-        }
+        source.readByte();
+        byte[] bytes = source.read((int) source.available());
+        SeekableInputStreamBytestream bis = new ByteArrayByteStream(bytes);
+        SeekableLittleEndianAccessor copy = new GenericSeekableLittleEndianAccessor(bis);
+        SeekableInputStreamBytestream sleabs = new ByteArrayByteStream(bytes.clone());
+        SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(sleabs);
+        bytes.clone();
+        Point original_pos = slea.readPos();
+        List res = MovementParse.parseMovement(slea, 1, chr);
         if ((res != null) && (chr.getMap() != null)) {
             if (slea.available() != 10) {
                 FileoutputUtil.log("玩家" + chr.getName() + "(" + MapleJob.getName(MapleJob.getById(chr.getJob())) + ") slea.available != 8 (角色移动出错) 剩余封包长度: " + slea.available());
                 FileoutputUtil.log(FileoutputUtil.Movement_Char, "slea.available != 8 (角色移动出错) 封包: " + slea.toString(true));
                 return;
             }
-            MapleMap map = c.getPlayer().getMap();
             slea.skip(2);
             if (chr.isHidden()) {
                 chr.setLastRes(res);
-                c.getPlayer().getMap().broadcastGMMessage(c.getPlayer(), MaplePacketCreator.movePlayer(chr.getId(), res, Original_Pos), false);
+                chr.getMap().broadcastGMMessage(chr, MaplePacketCreator.movePlayer(chr.getId(), copy), false);
+//            c.getPlayer().getMap().broadcastGMMessage(c.getPlayer(), MaplePacketCreator.movePlayer(chr.getId(), res, original_pos), false);
             } else {
-                c.getPlayer().getMap().broadcastMessage(c.getPlayer(), MaplePacketCreator.movePlayer(chr.getId(), res, Original_Pos), false);
+                chr.getMap().broadcastMessage(chr, MaplePacketCreator.movePlayer(chr.getId(), copy), false);
+//            c.getPlayer().getMap().broadcastGMMessage(c.getPlayer(), MaplePacketCreator.movePlayer(chr.getId(), res, original_pos), false);
             }
-
-            MovementParse.updatePosition(res, chr, 0);
-            Point pos = chr.getTruePosition();
-            map.movePlayer(chr, pos);
         }
+        MapleMap map = c.getPlayer().getMap();
+        MovementParse.updatePosition(res, chr, 0);
+        Point pos = chr.getTruePosition();
+        map.movePlayer(chr, pos);
     }
 
     /**
