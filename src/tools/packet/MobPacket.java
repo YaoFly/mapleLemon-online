@@ -234,6 +234,18 @@ public class MobPacket {
         return mplew.getPacket();
     }
 
+    public static byte[] moveMonster(int usesSkill, int skill, int objectID, Point Pos, Point startPos, List<LifeMovementFragment> moves) {
+        MaplePacketLittleEndianWriter wp = new MaplePacketLittleEndianWriter();
+        wp.write(SendPacketOpcode.MOVE_MONSTER.getValue());
+        wp.writeInt(objectID);
+        wp.write(usesSkill);
+        wp.write(skill);
+        wp.writePos(Pos);
+        wp.writePos(startPos);
+        PacketHelper.serializeMovementList(wp, moves);
+        return wp.getPacket();
+    }
+
     /**
      * 召唤怪物
      * @param life

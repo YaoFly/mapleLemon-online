@@ -845,7 +845,6 @@ public class PlayerHandler {
         SeekableLittleEndianAccessor copy = new GenericSeekableLittleEndianAccessor(bis);
         SeekableInputStreamBytestream sleabs = new ByteArrayByteStream(bytes.clone());
         SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(sleabs);
-        bytes.clone();
         Point original_pos = slea.readPos();
         List res = MovementParse.parseMovement(slea, 1, chr);
         if ((res != null) && (chr.getMap() != null)) {

@@ -30,6 +30,9 @@ import tools.FileoutputUtil;
 import tools.MaplePacketCreator;
 import tools.Pair;
 import tools.Triple;
+import tools.data.input.ByteArrayByteStream;
+import tools.data.input.GenericSeekableLittleEndianAccessor;
+import tools.data.input.SeekableInputStreamBytestream;
 import tools.data.input.SeekableLittleEndianAccessor;
 import tools.packet.MobPacket;
 
@@ -47,13 +50,12 @@ public final class MobHandler {
             return;
         }
         short moveid = slea.readShort();
-        boolean useSkill = (slea.readByte() & 0xFF) > 0;
+//        boolean useSkill = (slea.readByte() & 0xFF) > 0;
+        int useSkill = slea.readByte();
         int skillId = slea.readByte();
         int skillLevel = 0;
-        int start_x = slea.readShort(); // hmm.. startpos?
-        int start_y = slea.readShort(); // hmm...
-        slea.readShort();
-        slea.readShort();
+        Point Pos = new Point(slea.readShort(), slea.readShort());
+        Point VPos = new Point(slea.readShort(), slea.readShort());
 
         final List<LifeMovementFragment> res;
         try {
@@ -74,7 +76,8 @@ public final class MobHandler {
             MovementParse.updatePosition(res, monster, -1);
             Point endPos = monster.getTruePosition();
             map.moveMonster(monster, endPos);
-            map.broadcastMessage(chr, MobPacket.moveMonster(useSkill, slea, skillId, skillLevel, monster.getObjectId()), endPos);
+//            map.broadcastMessage(chr, MobPacket.moveMonster(useSkill, slea, skillId, skillLevel, monster.getObjectId()), endPos);
+            map.broadcastMessage(chr, MobPacket.moveMonster(useSkill, skillId, monster.getObjectId(),Pos,VPos,res), endPos);
         }
     }
 
