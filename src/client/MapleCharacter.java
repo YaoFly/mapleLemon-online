@@ -4700,10 +4700,11 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
             client.getSession().write(MaplePacketCreator.enableActions());
             return;
         }
-        //if ( pet != null) {
-        //    unequipSpawnPet(pet, true, false);
-        //} else {
+        if (pet.getSummoned()) {
+            unequipSpawnPet(pet, true, false);
+        } else {
             Point pos = getPosition();
+            pos.y -= 12;
             pet.setPos(pos);
             try {
                 pet.setFh(getMap().getFootholds().findBelow(pos).getId());
@@ -4718,9 +4719,9 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
 //                client.getSession().write(PetPacket.updatePet(pet, getInventory(MapleInventoryType.CASH).getItem((short) (byte) pet.getInventoryPosition()), false));
                 getMap().broadcastMessage(this, PetPacket.showPet(this, pet, false, false), true);
 //                client.getSession().write(PetPacket.loadExceptionList(this, pet));
-//                client.getSession().write(PetPacket.petStatUpdate(this));
+                client.getSession().write(PetPacket.petStatUpdate(this));
             }
-        //}
+        }
         client.getSession().write(MaplePacketCreator.enableActions());
     }
 
