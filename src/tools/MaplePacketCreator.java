@@ -1180,16 +1180,9 @@ public class MaplePacketCreator {
         mplew.writeInt(chr.getId());
         mplew.write(effectid);
         mplew.writeInt(skillid);
-        mplew.write(playerLevel);
-        mplew.write(skillLevel);
-        if (direction != 3) {
+        mplew.writeBool(true);
+        if (direction != (byte) -3) {
             mplew.write(direction);
-            switch (skillid) {
-                case 65121052:
-                    mplew.writeInt(chr.getTruePosition().x);
-                    mplew.writeInt(chr.getTruePosition().y);
-                    mplew.write(1);
-            }
         }
 
         return mplew.getPacket();
