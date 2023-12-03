@@ -35,6 +35,7 @@ import tools.FileoutputUtil;
 import tools.MaplePacketCreator;
 import tools.Triple;
 import tools.data.input.SeekableLittleEndianAccessor;
+import tools.packet.BuddyListPacket;
 import tools.packet.GuildPacket;
 import tools.packet.PartyPacket;
 
@@ -199,7 +200,7 @@ public class InterServerHandler {
             for (CharacterIdChannelPair onlineBuddy : onlineBuddies) {
                 player.getBuddylist().get(onlineBuddy.getCharacterId()).setChannel(onlineBuddy.getChannel());
             }
-            //c.getSession().write(BuddyListPacket.updateBuddylist(player.getBuddylist().getBuddies(), player.getId()));
+            c.getSession().write(BuddyListPacket.updateBuddylist(player.getBuddylist().getBuddies(), player.getId()));
             //c.getSession().write(BuddyListPacket.updateBuddylist(0x1F));
             MapleMessenger messenger = player.getMessenger();
             if (messenger != null) {

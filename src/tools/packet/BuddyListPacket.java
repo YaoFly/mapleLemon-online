@@ -30,7 +30,7 @@ public class BuddyListPacket {
     }
 
     public static byte[] updateBuddylist(Collection<BuddylistEntry> buddylist, int characterid) {
-        return updateBuddylist(buddylist, 0x11, false, characterid);
+        return updateBuddylist(buddylist, 0x07, false, characterid);
     }
 
     public static byte[] updateBuddylist(int mode) {
@@ -55,9 +55,9 @@ public class BuddyListPacket {
             mplew.write(buddylist.size());
             for (BuddylistEntry buddy : buddylist) {
                 mplew.writeInt(buddy.getCharacterId());
-                mplew.writeAsciiString(buddy.getName(), 0x13);
+                mplew.writeAsciiString(buddy.getName(), 19);
                 mplew.write(buddy.isVisible() ? 0 : 1);
-                mplew.writeInt(buddy.getChannel() == -1 ? -1 : buddy.getChannel() - 1);
+                mplew.writeInt(buddy.getChannel() - 1);
             }
             for (int x = 0; x < buddylist.size(); x++) {
                 mplew.writeInt(0);
@@ -85,14 +85,14 @@ public class BuddyListPacket {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.write(SendPacketOpcode.BUDDYLIST.getValue());
-        mplew.write(0x20);
+        mplew.write(9);
         mplew.writeInt(chrIdFrom);
-        mplew.writeAsciiString(nameFrom, 13);
+        mplew.writeMapleAsciiString(nameFrom);
+        mplew.writeInt(channel);//channel
+        mplew.writeAsciiString(nameFrom, 19);
+        mplew.write(channel);
+        mplew.writeInt(channel);
         mplew.write(0);
-        //mplew.writeInt(0);
-        mplew.writeInt(channel == -1 ? -1 : channel - 1);
-        mplew.writeAsciiString("未指定群组", 18);
-        mplew.writeZero(277);
         return mplew.getPacket();
     }
 
@@ -100,8 +100,9 @@ public class BuddyListPacket {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.write(SendPacketOpcode.BUDDYLIST.getValue());
-        mplew.write(0x14);
+        mplew.write(20);
         mplew.writeInt(chrId);
+        mplew.write(0);
         mplew.writeInt(channel);
         return mplew.getPacket();
     }

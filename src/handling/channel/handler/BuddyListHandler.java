@@ -48,26 +48,19 @@ public class BuddyListHandler {
          */
         if (mode == 1) {//添加好友
             String addName = slea.readMapleAsciiString();
-            String groupName = slea.readMapleAsciiString();
-            String remark = slea.readMapleAsciiString();
+            String groupName = "群未定";
             String alias = null;
-            if (slea.readByte() == 1) {
-                alias = slea.readMapleAsciiString();
-            }
-            if (alias != null) {
-                c.getPlayer().dropMessage(1, "暂时不支持账号综合好友的功能。");
-                return;
-            }
             BuddylistEntry ble = buddylist.get(addName);
-            if (addName.getBytes().length > 13 || groupName.getBytes().length > 16 || (alias != null && alias.getBytes().length > 13) || remark.getBytes().length > 133) {
+            if (addName.getBytes().length > 13 || groupName.getBytes().length > 16) {
                 return;
             }
-            if ((ble != null) && ((ble.getGroup().equals(groupName)) || (!ble.isVisible()))) {
-                c.getSession().write(BuddyListPacket.buddylistMessage(alias != null ? 0x18 : 0x19));
-            } else if ((ble != null) && (ble.isVisible())) {
-                ble.setGroup(groupName);
-                c.getSession().write(BuddyListPacket.updateBuddylist(buddylist.getBuddies(), 0x11, false, c.getPlayer().getId()));
-            } else if (buddylist.isFull()) {
+//            if ((ble != null) && ((ble.getGroup().equals(groupName)) || (!ble.isVisible()))) {
+//                c.getSession().write(BuddyListPacket.buddylistMessage(alias != null ? 0x18 : 0x19));
+//            } else if ((ble != null) && (ble.isVisible())) {
+//                ble.setGroup(groupName);
+//                c.getSession().write(BuddyListPacket.updateBuddylist(buddylist.getBuddies(), 0x11, false, c.getPlayer().getId()));
+//            } else
+            if (buddylist.isFull()) {
                 c.getSession().write(BuddyListPacket.buddylistMessage(0x15));
             } else {
                 try {
@@ -90,6 +83,7 @@ public class BuddyListHandler {
                             buddyAddResult = WorldBuddyService.getInstance().requestBuddyAdd(addName, c.getChannel(), c.getPlayer().getId(), c.getPlayer().getName(), c.getPlayer().getLevel(), c.getPlayer().getJob());
                             MapleCharacter chr = ChannelServer.getInstance(channel).getPlayerStorage().getCharacterByName(addName);
                             chr.getClient().getSession().write(BuddyListPacket.requestBuddylistAdd(c.getPlayer().getId(), c.getPlayer().getName(), -1));
+                            c.getPlayer().dropMessage(1, "向 '" + addName + "' 发送了好友请求.");
                         } else {
                             Connection con = DatabaseConnection.getConnection();
                             PreparedStatement ps = con.prepareStatement("SELECT COUNT(*) as buddyCount FROM buddies WHERE characterid = ? AND pending = 0");
@@ -127,7 +121,8 @@ public class BuddyListHandler {
                             if ((buddyAddResult == BuddyList.BuddyAddResult.已经是好友关系) && (channel > 0)) {
                                 displayChannel = channel;
                                 notifyRemoteChannel(c, channel, otherCid, groupName, BuddyList.BuddyOperation.添加好友);
-                            } else if (buddyAddResult != BuddyList.BuddyAddResult.已经是好友关系) {
+                            }
+                            else if (buddyAddResult != BuddyList.BuddyAddResult.已经是好友关系) {
                                 Connection con = DatabaseConnection.getConnection();
                                 try (PreparedStatement ps = con.prepareStatement("INSERT INTO buddies (`characterid`, `buddyid`, `groupname`, `pending`) VALUES (?, ?, ?, 1)")) {
                                     ps.setInt(1, charWithId.getId());
@@ -138,9 +133,10 @@ public class BuddyListHandler {
                                 }
                             }
                             buddylist.put(new BuddylistEntry(charWithId.getName(), otherCid, groupName, displayChannel, true));
-                            c.getSession().write(BuddyListPacket.requestBuddylistAdd(otherCid, charWithId.getName(), displayChannel));
-                            //c.getSession().write(BuddyListPacket.updateBuddylist(buddylist.getBuddies(), 0x11, false, c.getPlayer().getId()));
-                            c.getSession().write(BuddyListPacket.buddylistPrompt(0x14, charWithId.getName()));//向charWithId.getName()发送了好友申请。
+//                            c.getSession().write(BuddyListPacket.requestBuddylistAdd(otherCid, charWithId.getName(), displayChannel));
+                            c.getSession().write(BuddyListPacket.updateBuddylist(buddylist.getBuddies(), 0x07, false, c.getPlayer().getId()));
+//                            c.getSession().write(BuddyListPacket.buddylistPrompt(0x14, charWithId.getName()));//向charWithId.getName()发送了好友申请。
+
                         }
                     } else {//角色不存在
                         c.getSession().write(BuddyListPacket.buddylistMessage(0x1C));//0x19+3
@@ -154,10 +150,10 @@ public class BuddyListHandler {
             BuddylistEntry ble = buddylist.get(otherCid);
             if (!buddylist.isFull() && ble != null && !ble.isVisible()) {
                 int channel = WorldFindService.getInstance().findChannel(otherCid);
-                buddylist.put(new BuddylistEntry(ble.getName(), otherCid, "未指定群组", channel, true));
+                buddylist.put(new BuddylistEntry(ble.getName(), otherCid, "群未定", channel, true));
                 c.getSession().write(BuddyListPacket.requestBuddylistAdd(otherCid, ble.getName(), channel));
-                //c.getSession().write(BuddyListPacket.updateBuddylist(buddylist.getBuddies(), 0x11, false, c.getPlayer().getId()));
-                notifyRemoteChannel(c, channel, otherCid, "未指定群组", BuddyList.BuddyOperation.添加好友);
+                c.getSession().write(BuddyListPacket.updateBuddylist(buddylist.getBuddies(), 0x0A, false, c.getPlayer().getId()));
+                notifyRemoteChannel(c, channel, otherCid, "群未定", BuddyList.BuddyOperation.添加好友);
             } else {
                 c.getSession().write(BuddyListPacket.buddylistMessage(0x16));
             }
