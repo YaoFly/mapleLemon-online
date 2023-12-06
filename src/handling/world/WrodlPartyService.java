@@ -241,8 +241,8 @@ public class WrodlPartyService {
         }
     }
 
-    public MapleParty createParty(MaplePartyCharacter chrfor, boolean 非公开组队, String 组队名称) {
-        MapleParty party = new MapleParty(this.runningPartyId.getAndIncrement(), chrfor, 非公开组队, 组队名称);
+    public MapleParty createParty(MaplePartyCharacter chrfor) {
+        MapleParty party = new MapleParty(this.runningPartyId.getAndIncrement(), chrfor);
         this.partyList.put(party.getId(), party);
         return party;
     }

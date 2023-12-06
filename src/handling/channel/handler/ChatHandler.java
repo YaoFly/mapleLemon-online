@@ -136,31 +136,11 @@ public class ChatHandler {
                     messengerService.leaveMessenger(messenger.getId(), messengerplayer);
                     c.getPlayer().setMessenger(null);
                 }
-                int mode = slea.readByte();
-                int maxMembers = slea.readByte();
                 int messengerId = slea.readInt();
 
                 if (messengerId == 0) {
                     MapleMessengerCharacter messengerPlayer = new MapleMessengerCharacter(c.getPlayer());
-                    MessengerType type = MessengerType.getMessengerType(maxMembers, mode != 0);
-                    if (type == null) {
-                        return;
-                    }
-                    if (mode == 0) {
-                        c.getPlayer().setMessenger(messengerService.createMessenger(messengerPlayer, type, c.getPlayer().isIntern()));
-                    } else if (mode == 1) {
-                        messenger = c.getPlayer().isIntern() ? messengerService.getRandomHideMessenger(type) : messengerService.getRandomMessenger(type);
-                        if (messenger != null) {
-                            int position = messenger.getLowestPosition();
-                            if (position != -1) {
-                                c.getPlayer().setMessenger(messenger);
-                                messengerService.joinMessenger(messenger.getId(), new MapleMessengerCharacter(c.getPlayer()), c.getPlayer().getName(), c.getChannel());
-                            }
-                        } else {
-                            c.getPlayer().setMessenger(messengerService.createMessenger(messengerPlayer, type, c.getPlayer().isIntern()));
-                            c.getSession().write(MessengerPacket.joinMessenger(255));
-                        }
-                    }
+                    c.getPlayer().setMessenger(messengerService.createMessenger(messengerPlayer));
                 } else {
                     messenger = messengerService.getMessenger(messengerId);
                     if (messenger == null) {
@@ -240,9 +220,6 @@ public class ChatHandler {
                     break;
                 }
                 String name = slea.readMapleAsciiString();
-                if (!messenger.getType().random) {
-                    return;
-                }
                 MapleCharacter targetPlayer = WorldFindService.getInstance().findCharacterByName(name);
                 if ((targetPlayer != null) && (targetPlayer.getId() != c.getPlayer().getId()) && (targetPlayer.getMessenger() != null) && (targetPlayer.getMessenger().getId() == messenger.getId())) {
                     switch (c.getPlayer().canGiveLove(targetPlayer)) {
@@ -296,7 +273,6 @@ public class ChatHandler {
 
     public static void Whisper_Find(SeekableLittleEndianAccessor slea, MapleClient c) {
         byte mode = slea.readByte();
-        slea.readInt();
         switch (mode) {
             case 5:
             case 68:

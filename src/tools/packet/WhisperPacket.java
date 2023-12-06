@@ -15,7 +15,7 @@ public class WhisperPacket {
         mplew.write(SendPacketOpcode.WHISPER.getValue());
         mplew.write(18);
         mplew.writeMapleAsciiString(sender);
-        mplew.writeShort(channel - 1);
+        mplew.write(channel - 1);
         mplew.writeMapleAsciiString(text);
 
         return mplew.getPacket();

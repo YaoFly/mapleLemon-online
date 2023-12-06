@@ -18,16 +18,12 @@ public class MapleParty implements Serializable {
     private int id;
     private int expeditionLink = -1;
     private boolean disbanded = false;
-    private boolean 非公开组队;
-    private String 组队名称;
     private Map<Integer, Map<Integer, List<Integer>>> partyBuffs = new HashMap();
 
-    public MapleParty(int id, MaplePartyCharacter chrfor, boolean 非公开组队, String 组队名称) {
+    public MapleParty(int id, MaplePartyCharacter chrfor) {
         this.leader = chrfor;
         this.members.add(this.leader);
         this.id = id;
-        this.非公开组队 = 非公开组队;
-        this.组队名称 = 组队名称;
     }
 
     public MapleParty(int id, MaplePartyCharacter chrfor, int expeditionLink) {
@@ -137,22 +133,6 @@ public class MapleParty implements Serializable {
 
     public void disband() {
         this.disbanded = true;
-    }
-
-    public String getName() {
-        return 组队名称;
-    }
-
-    public void setName(String name) {
-        组队名称 = name;
-    }
-
-    public boolean is非公开组队() {
-        return 非公开组队;
-    }
-
-    public void set非公开组队(boolean 非公开组队) {
-        this.非公开组队 = 非公开组队;
     }
 
     public void givePartyBuff(int buffId, int applyfrom, int applyto) {

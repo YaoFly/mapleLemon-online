@@ -24,9 +24,9 @@ public class WorldMessengerService {
         this.messengers = new HashMap();
     }
 
-    public MapleMessenger createMessenger(MapleMessengerCharacter chrfor, MessengerType type, boolean gm) {
+    public MapleMessenger createMessenger(MapleMessengerCharacter chrfor) {
         int messengerid = this.runningMessengerId.getAndIncrement();
-        MapleMessenger messenger = new MapleMessenger(messengerid, chrfor, type, gm);
+        MapleMessenger messenger = new MapleMessenger(messengerid, chrfor);
         this.messengers.put(messenger.getId(), messenger);
         return messenger;
     }
@@ -46,7 +46,7 @@ public class WorldMessengerService {
     public MapleMessenger getRandomMessenger(MessengerType type) {
         for (Map.Entry ms : this.messengers.entrySet()) {
             MapleMessenger messenger = (MapleMessenger) ms.getValue();
-            if ((messenger != null) && (messenger.getType() == type) && (messenger.getLowestPosition() != -1) && (!messenger.isHide())) {
+            if ((messenger != null) && (messenger.getLowestPosition() != -1)) {
                 return messenger;
             }
         }
@@ -56,7 +56,7 @@ public class WorldMessengerService {
     public MapleMessenger getRandomHideMessenger(MessengerType type) {
         for (Map.Entry ms : this.messengers.entrySet()) {
             MapleMessenger messenger = (MapleMessenger) ms.getValue();
-            if ((messenger != null) && (messenger.getType() == type) && (messenger.getLowestPosition() != -1) && (messenger.isHide())) {
+            if ((messenger != null) && (messenger.getLowestPosition() != -1)) {
                 return messenger;
             }
         }

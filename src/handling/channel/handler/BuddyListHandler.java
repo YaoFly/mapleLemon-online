@@ -81,8 +81,8 @@ public class BuddyListHandler {
                         //被加方处理
                         if (channel > 0) {
                             buddyAddResult = WorldBuddyService.getInstance().requestBuddyAdd(addName, c.getChannel(), c.getPlayer().getId(), c.getPlayer().getName(), c.getPlayer().getLevel(), c.getPlayer().getJob());
-                            MapleCharacter chr = ChannelServer.getInstance(channel).getPlayerStorage().getCharacterByName(addName);
-                            chr.getClient().getSession().write(BuddyListPacket.requestBuddylistAdd(c.getPlayer().getId(), c.getPlayer().getName(), -1));
+//                            MapleCharacter chr = ChannelServer.getInstance(channel).getPlayerStorage().getCharacterByName(addName);
+//                            chr.getClient().getSession().write(BuddyListPacket.requestBuddylistAdd(c.getPlayer().getId(), c.getPlayer().getName(), -1));
                             c.getPlayer().dropMessage(1, "向 '" + addName + "' 发送了好友请求.");
                         } else {
                             Connection con = DatabaseConnection.getConnection();
@@ -151,20 +151,28 @@ public class BuddyListHandler {
             if (!buddylist.isFull() && ble != null && !ble.isVisible()) {
                 int channel = WorldFindService.getInstance().findChannel(otherCid);
                 buddylist.put(new BuddylistEntry(ble.getName(), otherCid, "群未定", channel, true));
-                c.getSession().write(BuddyListPacket.requestBuddylistAdd(otherCid, ble.getName(), channel));
+//                c.getSession().write(BuddyListPacket.requestBuddylistAdd(otherCid, ble.getName(), channel));
                 c.getSession().write(BuddyListPacket.updateBuddylist(buddylist.getBuddies(), 0x0A, false, c.getPlayer().getId()));
                 notifyRemoteChannel(c, channel, otherCid, "群未定", BuddyList.BuddyOperation.添加好友);
             } else {
                 c.getSession().write(BuddyListPacket.buddylistMessage(0x16));
             }
-        } else if (mode == 4) {//删除好友
+        } else if (mode == 3) {//删除好友
             int otherCid = slea.readInt();
             BuddylistEntry blz = buddylist.get(otherCid);
             if ((blz != null) && (blz.isVisible())) {
                 notifyRemoteChannel(c, WorldFindService.getInstance().findChannel(otherCid), otherCid, blz.getGroup(), BuddyList.BuddyOperation.删除好友);
             }
+            final int ch_ = WorldFindService.getInstance().findChannel(otherCid);
+            final MapleCharacter delChar = ChannelServer.getInstance(ch_).getPlayerStorage().getCharacterById(otherCid);
+            if (ch_ <= 0) {
+                deleteOfflineBuddy(otherCid, c.getPlayer().getId());
+            }else{
+                delChar.getBuddylist().remove(c.getPlayer().getId());
+                delChar.getClient().getSession().write(BuddyListPacket.updateBuddylist(null, 0x12, true, c.getPlayer().getId()));
+            }
             buddylist.remove(otherCid);
-            c.getSession().write(BuddyListPacket.updateBuddylist(null, 0x22, true, otherCid));
+            c.getSession().write(BuddyListPacket.updateBuddylist(null, 0x12, true, otherCid));
         } else if (mode == 6) {//拒绝添加好友
             int fromCid = slea.readInt();
             buddylist.remove(fromCid);
@@ -187,6 +195,35 @@ public class BuddyListHandler {
             }
         } else {
             System.err.println("未处理好友操作码：" + mode);
+        }
+    }
+
+    public static byte deleteOfflineBuddy(final int delId, final int myId) {
+        Connection con = null;
+        try {
+            con = DatabaseConnection.getConnection();
+            PreparedStatement ps = con.prepareStatement("DELETE from `buddyentries` WHERE `owner` = ? AND `buddyid` = ?");
+            ps.setInt(1, delId);
+            ps.setInt(2, myId);
+            ps.executeUpdate();
+            ps.close();
+            ps = con.prepareStatement("DELETE from `buddyentries` WHERE `owner` = ? AND `buddyid` = ?");
+            ps.setInt(1, myId);
+            ps.setInt(2, delId);
+            ps.executeUpdate();
+            ps.close();
+            return 0;
+        } catch (SQLException e) {
+            System.out.println("Error deleting buddy");
+            return -1;
+        } finally {
+            try {
+                if (con != null && !con.isClosed()) {
+                    con.close();
+                }
+
+            } catch (SQLException e) {
+            }
         }
     }
 

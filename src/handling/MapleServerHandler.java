@@ -786,7 +786,7 @@ public class MapleServerHandler extends IoHandlerAdapter {
                 PartyHandler.MemberSearch(slea, c);
                 break;
             case PARTY_SEARCH:
-                PartyHandler.PartySearch(slea, c);
+//                PartyHandler.PartySearch(slea, c);
                 break;
             case USE_TELE_ROCK:
                 InventoryHandler.TeleRock(slea, c);

@@ -10,28 +10,15 @@ import java.util.Collection;
 public class MapleMessenger implements Serializable {
 
     private static final long serialVersionUID = 9179541993413738569L;
-    private final MapleMessengerCharacter[] members;
-    private final String[] silentLink;
+    private final MapleMessengerCharacter[] members = new MapleMessengerCharacter[3];
+    private final String[] silentLink = new String[3];
     private int id;
-    private final MessengerType type;
-    private final boolean hide;
 
-    public MapleMessenger(int id, MapleMessengerCharacter chrfor, MessengerType type, boolean gm) {
+    public MapleMessenger(int id, MapleMessengerCharacter chrfor) {
         this.id = id;
-        this.type = type;
-        this.hide = gm;
-        this.members = new MapleMessengerCharacter[type.maxMembers];
-        this.silentLink = new String[type.maxMembers];
         this.members[0] = chrfor;
     }
 
-    public MessengerType getType() {
-        return this.type;
-    }
-
-    public boolean isHide() {
-        return this.hide;
-    }
 
     public void addMembers(int pos, MapleMessengerCharacter chrfor) {
         if (this.members[pos] != null) {

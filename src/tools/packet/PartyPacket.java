@@ -180,8 +180,6 @@ public class PartyPacket {
                 break;
             case 更新信息:
                 mplew.write(0x4C);//new 119ok
-                mplew.writeBool(party.is非公开组队());
-                mplew.writeMapleAsciiString(new String[]{party.getName(), null, null, null});
                 break;
             case 改变队长:
             case CHANGE_LEADER_DC:
@@ -311,28 +309,6 @@ public class PartyPacket {
         return mplew.getPacket();
     }
 
-    public static byte[] showPartySearch(List<MapleParty> partylist) {
-        MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.write(SendPacketOpcode.PARTY_SEARCH.getValue());
-        mplew.write(partylist.size());
-        for (MapleParty party : partylist) {
-            mplew.writeInt(party.getId());
-            mplew.writeMapleAsciiString(party.getLeader().getName());
-            mplew.write(party.getLeader().getLevel());
-            mplew.write(party.getLeader().isOnline() ? 1 : 0);
-            mplew.writeMapleAsciiString(new String[]{party.getName(), null, null, null});
-            mplew.write(party.getMembers().size());
-            for (MaplePartyCharacter partyChr : party.getMembers()) {
-                mplew.writeInt(partyChr.getId());
-                mplew.writeMapleAsciiString(partyChr.getName());
-                mplew.writeInt(partyChr.getJobId());
-                mplew.write(partyChr.getLevel());
-                mplew.write(partyChr.isOnline() ? 1 : 0);
-            }
-        }
-
-        return mplew.getPacket();
-    }
 
     public static byte[] sidekickInvite(MapleCharacter from) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();

@@ -5502,22 +5502,16 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
                 break;
             }
         }
-        // 重新排列下
-        int[] tmp = new int[5];
-        int j = 0;
-        for (int i = 0; i < 5; i++) {
-            if (this.regrocks[i] != 999999999) {
-                tmp[j] = this.regrocks[i];
-                j++;
+        // 重新排序
+        for(int i = 0; i < this.regrocks.length ; i++){
+            for(int j = i ; j < this.regrocks.length ; j++){
+                if(this.regrocks[i] > this.regrocks[j]){
+                    int tmp = this.regrocks[j];
+                    this.regrocks[j] = this.regrocks[i];
+                    this.regrocks[i] = tmp;
+                }
             }
         }
-        // 补上
-        if (j <4) {
-            for (;j<=4;j++) {
-                tmp[j] = 999999999;
-            }
-        }
-        this.regrocks = tmp;
     }
 
     public void addRegRockMap() {
