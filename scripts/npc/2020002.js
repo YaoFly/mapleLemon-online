@@ -151,7 +151,7 @@ function action(mode, type, selection) {
         else
             prompt += "\r\n#i"+mats+"# " + matQty + " #t" + mats + "#";
         if (cost > 0)
-            prompt += "\r\n#i4031138# " + cost + " meso";
+            prompt += "\r\n#i2140000# " + cost + " meso";
         cm.sendYesNo(prompt);
     }
     else if (status == 3 && mode == 1) {

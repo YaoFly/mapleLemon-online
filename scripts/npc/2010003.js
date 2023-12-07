@@ -149,7 +149,7 @@ function action(mode, type, selection) {
         }
 		
         if (cost > 0)
-            prompt += "\r\n#i4031138# " + cost + " meso";
+            prompt += "\r\n#i2140000# " + cost + " meso";
 		
         cm.sendYesNo(prompt);
     }
