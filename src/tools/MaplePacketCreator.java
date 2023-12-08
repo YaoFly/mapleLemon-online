@@ -1198,7 +1198,7 @@ public class MaplePacketCreator {
         mplew.write(SendPacketOpcode.SHOW_SPECIAL_EFFECT.getValue());
         mplew.write(effectid);
         mplew.writeInt(skillid);
-        mplew.write(skillLevel);
+        mplew.writeBool(true);
 
         return mplew.getPacket();
     }

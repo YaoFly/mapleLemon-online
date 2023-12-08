@@ -1044,24 +1044,25 @@ public class MapleStatEffect implements Serializable {
 
     private void applyBuff(MapleCharacter applyfrom, int newDuration) {
         List<MapleCharacter> awarded = new ArrayList();
-//        if ((isPartyBuff()) && ((applyfrom.getParty() != null) || (isGmBuff()))) {
+        if ((isPartyBuff()) && ((applyfrom.getParty() != null) || (isGmBuff()))) {
             Rectangle bounds = calculateBoundingBox(applyfrom.getTruePosition(), applyfrom.isFacingLeft());
             List<MapleMapObject> affecteds = applyfrom.getMap().getMapObjectsInRect(bounds, Arrays.asList(new MapleMapObjectType[]{MapleMapObjectType.PLAYER}));
             for (MapleMapObject affectedmo : affecteds) {
                 MapleCharacter affected = (MapleCharacter) affectedmo;
-                if ((affected.getId() != applyfrom.getId()) && ((isGmBuff()) || ((affected.getTeam() == applyfrom.getTeam()) && (Integer.parseInt(applyfrom.getEventInstance().getProperty("type")) != 0)) || ((applyfrom.getParty() != null) && (affected.getParty() != null) && (applyfrom.getParty().getId() == affected.getParty().getId())))) {
+                if ((affected.getId() != applyfrom.getId()) && ((isGmBuff())
+                        || ((applyfrom.getParty() != null) && (affected.getParty() != null) && (applyfrom.getParty().getId() == affected.getParty().getId())))) {
                     awarded.add(affected);
                 }
             }
-//        }
+        }
         for (MapleCharacter chr : awarded) {
             if (isPartyBuff() && chr.getParty() != null && !is群体治愈()) {
                 chr.getParty().givePartyBuff(this.sourceid, applyfrom.getId(), chr.getId());
             }
             if (((is复活术()) && (!chr.isAlive())) || ((!is复活术()) && (chr.isAlive()))) {
                 applyTo(applyfrom, chr, false, null, newDuration);
-                chr.getClient().getSession().write(MaplePacketCreator.showOwnBuffEffect(this.sourceid, 3/*, applyfrom.getLevel()*/, this.level));//2+1 119
-                chr.getMap().broadcastMessage(chr, MaplePacketCreator.showBuffeffect(chr, this.sourceid, 3, applyfrom.getLevel(), this.level), false);//2+1 119
+                chr.getClient().getSession().write(MaplePacketCreator.showOwnBuffEffect(this.sourceid, 2/*, applyfrom.getLevel()*/, this.level));//2+1 119
+                chr.getMap().broadcastMessage(chr, MaplePacketCreator.showBuffeffect(chr, this.sourceid, 2, applyfrom.getLevel(), this.level), false);//2+1 119
             }
             if (is伺机待发()) {
                 for (MapleCoolDownValueHolder i : chr.getCooldowns()) {
