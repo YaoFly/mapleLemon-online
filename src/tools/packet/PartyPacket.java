@@ -159,33 +159,31 @@ public class PartyPacket {
                 mplew.writeInt(target.getId());
                 if (op == PartyOperation.解散队伍) {
                     mplew.write(0);
+                    mplew.writeInt(party.getId());
                 } else {
                     mplew.write(1);
                     mplew.write(op == PartyOperation.驱逐成员 ? 1 : 0);
                     mplew.writeMapleAsciiString(target.getName());
-                    addPartyStatus(forChannel, party, mplew, op == PartyOperation.离开队伍);
+                    addPartyStatus(forChannel, party, mplew, false);
                 }
                 break;
             case 加入队伍:
-                mplew.write(0xE);//0x16+1 119ok
+                mplew.write(0x0E);//0x16+1 119ok
                 mplew.writeInt(party.getId());
                 mplew.writeMapleAsciiString(target.getName());
                 addPartyStatus(forChannel, party, mplew, false);
                 break;
             case 更新队伍:
             case LOG_ONOFF:
-                mplew.write(op == PartyOperation.LOG_ONOFF ? 0x38 : 0x0E);//0x37+1|0x0D+1 119ok
+                mplew.write(0x06);
                 mplew.writeInt(party.getId());
-                addPartyStatus(forChannel, party, mplew, op == PartyOperation.LOG_ONOFF);
-                break;
-            case 更新信息:
-                mplew.write(0x4C);//new 119ok
+                addPartyStatus(forChannel, party, mplew, false);
                 break;
             case 改变队长:
             case CHANGE_LEADER_DC:
-                mplew.write(0x2F);//0x2E+1 119ok
+                mplew.write(0x1A);
                 mplew.writeInt(target.getId());
-                mplew.write(op == PartyOperation.CHANGE_LEADER_DC ? 1 : 0);
+                mplew.write(1);
         }
 
         return mplew.getPacket();

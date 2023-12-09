@@ -62,16 +62,16 @@ public class PortalScriptManager {
         return script;
     }
 
-    public void executePortalScript(MaplePortal portal, MapleClient c) {
+    public boolean executePortalScript(MaplePortal portal, MapleClient c) {
         PortalScript script = getPortalScript(portal.getScriptName());
 
         boolean err = false;
         if (script != null) {
             try {
-                script.enter(new PortalPlayerInteraction(c, portal));
                 if (c.getPlayer().isShowPacket()) {
                     c.getPlayer().dropMessage(5, "执行传送点脚本名为:(" + portal.getScriptName() + ".js)的文件 在地图 " + c.getPlayer().getMapId() + " - " + c.getPlayer().getMap().getMapName());
                 }
+                return script.enter(new PortalPlayerInteraction(c, portal));
             } catch (Exception e) {
                 err = true;
                 if (c.getPlayer().isShowPacket()) {
@@ -90,6 +90,7 @@ public class PortalScriptManager {
             c.getPlayer().卡图 = c.getPlayer().getMapId();
             c.getSession().write(NPCPacket.sendNPCSay(9010000, "你好像被卡在了奇怪的地方，这里有个东西未处理，请联系管理员反馈信息：" + portal.getScriptName() + "\r\n你现在可以点击 拍卖 或者输入 @卡图 来移动到射手村。"));
         }
+        return false;
     }
 
     public void clearScripts() {

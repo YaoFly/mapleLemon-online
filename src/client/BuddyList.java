@@ -78,9 +78,7 @@ public class BuddyList implements Serializable {
         int[] buddyIds = new int[this.buddies.size()];
         int i = 0;
         for (BuddylistEntry ble : this.buddies.values()) {
-            if (ble.isVisible()) {
-                buddyIds[(i++)] = ble.getCharacterId();
-            }
+            buddyIds[(i++)] = ble.getCharacterId();
         }
         return buddyIds;
     }

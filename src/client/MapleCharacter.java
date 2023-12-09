@@ -2860,19 +2860,19 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
                 if (shouldState) {
                     to.setCheckStates(true);
                 }
-                try {
-                    int countRows = ManagerSin.jTable1.getRowCount();//获取当前表格总行数
-                    for (int i = 0; i < countRows; i++) {
-                        String sname = ManagerSin.jTable1.getValueAt(i, 1).toString();
-                        if (sname.equals(this.getName()) && this.map != null) {
-                            ((DefaultTableModel) ManagerSin.jTable1.getModel()).setValueAt(to.getMapName() + "(" + this.getMapId() + ")", i, 4);
-                            ((DefaultTableModel) ManagerSin.jTable1.getModel()).setValueAt(this.getLevel(), i, 2);
-                            break;
-                        }
-                    }
-                } catch (Exception e) {
-                    FileoutputUtil.outputFileError(FileoutputUtil.GUI_Ex_Log, e);
-                }
+//                try {
+//                    int countRows = ManagerSin.jTable1.getRowCount();//获取当前表格总行数
+//                    for (int i = 0; i < countRows; i++) {
+//                        String sname = ManagerSin.jTable1.getValueAt(i, 1).toString();
+//                        if (sname.equals(this.getName()) && this.map != null) {
+//                            ((DefaultTableModel) ManagerSin.jTable1.getModel()).setValueAt(to.getMapName() + "(" + this.getMapId() + ")", i, 4);
+//                            ((DefaultTableModel) ManagerSin.jTable1.getModel()).setValueAt(this.getLevel(), i, 2);
+//                            break;
+//                        }
+//                    }
+//                } catch (Exception e) {
+//                    FileoutputUtil.outputFileError(FileoutputUtil.GUI_Ex_Log, e);
+//                }
             }
         }
     }
@@ -4573,6 +4573,12 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
         if (client.getPlayer().allowedToTarget(this)) {
             client.getSession().write(MaplePacketCreator.spawnPlayerMapobject(this));
         }
+        if (client.getPlayer().getParty() != null) {
+            client.getPlayer().silentPartyUpdate();
+            client.getPlayer().getClient().getSession().write(PartyPacket.updateParty(client.getPlayer().getClient().getChannel(), client.getPlayer().getParty(), PartyOperation.更新队伍, null));
+            client.getPlayer().updatePartyMemberHP();
+            client.getPlayer().receivePartyMemberHP();
+        }
     }
 
     public void equipChanged() {
@@ -4636,6 +4642,23 @@ public class MapleCharacter extends AnimatedMapleMapObject implements Serializab
             }
         }
         return ret;
+    }
+
+    public final MaplePet getPet(final int index) {
+        byte count = 0;
+        List<MaplePet> pets = getPets();
+        if (pets == null) {
+            return null;
+        }
+        for (final MaplePet pet : pets) {
+            if (pet.getSummoned()) {
+                if (count == index) {
+                    return pet;
+                }
+                count++;
+            }
+        }
+        return null;
     }
 
     public MaplePet getSpawnPets() {

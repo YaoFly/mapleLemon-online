@@ -56,7 +56,7 @@ public class BuddyListPacket {
             for (BuddylistEntry buddy : buddylist) {
                 mplew.writeInt(buddy.getCharacterId());
                 mplew.writeAsciiString(buddy.getName(), 19);
-                mplew.write(buddy.isVisible() ? 0 : 1);
+                mplew.write(0);
                 mplew.writeInt(buddy.getChannel() - 1);
             }
             for (int x = 0; x < buddylist.size(); x++) {

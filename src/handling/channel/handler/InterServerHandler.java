@@ -201,7 +201,7 @@ public class InterServerHandler {
                 player.getBuddylist().get(onlineBuddy.getCharacterId()).setChannel(onlineBuddy.getChannel());
             }
             c.getSession().write(BuddyListPacket.updateBuddylist(player.getBuddylist().getBuddies(), player.getId()));
-            //c.getSession().write(BuddyListPacket.updateBuddylist(0x1F));
+//            c.getSession().write(BuddyListPacket.updateBuddylist(0x1F));
             MapleMessenger messenger = player.getMessenger();
             if (messenger != null) {
                 WorldMessengerService.getInstance().silentJoinMessenger(messenger.getId(), new MapleMessengerCharacter(player));

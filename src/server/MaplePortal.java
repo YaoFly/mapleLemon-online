@@ -94,11 +94,12 @@ public class MaplePortal {
         }
         MapleMap currentmap = c.getPlayer().getMap();
         FileoutputUtil.log("传送地图："+getTargetMapId());
+        boolean changed = false;
         if ((!c.getPlayer().hasBlockedInventory()) && ((this.portalState) || (c.getPlayer().isGM()))) {
             if (getScriptName() != null) {
                 FileoutputUtil.log("传送地图脚本："+getTargetMapId());
                 try {
-                    PortalScriptManager.getInstance().executePortalScript(this, c);
+                    changed = PortalScriptManager.getInstance().executePortalScript(this, c);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -117,9 +118,10 @@ public class MaplePortal {
                 }
                 FileoutputUtil.log("传送地图正常："+getTarget());
                 c.getPlayer().changeMapPortal(to, to.getPortal(getTarget()) == null ? to.getPortal(0) : to.getPortal(getTarget()));
+                changed = true;
             }
         }
-        if ((c != null) && (c.getPlayer() != null) && (c.getPlayer().getMap() == currentmap)) {
+        if (!changed) {
             c.getSession().write(MaplePacketCreator.enableActions());
         }
     }

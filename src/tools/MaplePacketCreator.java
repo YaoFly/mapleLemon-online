@@ -12,13 +12,7 @@ import client.MonsterFamiliar;
 import client.Skill;
 import client.SkillEntry;
 import client.SkillMacro;
-import client.inventory.Equip;
-import client.inventory.ImpFlag;
-import client.inventory.Item;
-import client.inventory.MapleImp;
-import client.inventory.MapleInventoryType;
-import client.inventory.MaplePet;
-import client.inventory.MapleRing;
+import client.inventory.*;
 import constants.GameConstants;
 import constants.ItemConstants;
 import constants.ServerConstants;
@@ -30,13 +24,9 @@ import handling.world.guild.MapleGuild;
 import java.awt.Point;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Random;
+
 import org.apache.log4j.Logger;
 import server.MapleDueyActions;
 import server.MapleItemInformationProvider;
@@ -155,9 +145,15 @@ public class MaplePacketCreator {
         mplew.writeInt(Randomizer.nextInt());
         mplew.writeInt(0);
         PacketHelper.addCharacterInfo(mplew, chr);
+        mplew.writeLong(GetTime(System.currentTimeMillis()));
 
         return mplew.getPacket();
     }
+
+    public static long GetTime(long realTimestamp) {
+        return ((realTimestamp * 10000) + FT_UT_OFFSET);
+    }
+    public final static long FT_UT_OFFSET = 116445024000000000L;
 
     public static byte[] enableActions() {
         return updatePlayerStats(new EnumMap(MapleStat.class), true, null);
@@ -218,7 +214,7 @@ public class MaplePacketCreator {
 
         mplew.write(SendPacketOpcode.WARP_TO_MAP.getValue());
         mplew.writeInt(chr.getClient().getChannel() - 1);
-        mplew.write(to.getPortals().size());
+        mplew.write(0x02);
         mplew.write(0);
         mplew.writeInt(to.getId());
         mplew.write(spawnPoint);
@@ -651,75 +647,106 @@ public class MaplePacketCreator {
 
     /**
      * 召唤玩家
-     * @param chr
      * @return
      */
-    public static byte[] spawnPlayerMapobject(MapleCharacter chr) {
+    public static byte[] spawnPlayerMapobject(MapleCharacter p) {
         MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
 
         mplew.write(SendPacketOpcode.SPAWN_PLAYER.getValue());
-        mplew.writeInt(chr.getId());
-        mplew.writeMapleAsciiString(chr.getName());
-        int buffmask = 0;
-        Integer buffvalue = null;
+        mplew.writeInt(p.getId());
+        mplew.writeMapleAsciiString(p.getName());
+        int mask = 0;
+        List<MapleBuffStat> buffstats = Arrays.asList(
+                MapleBuffStat.移动速度, MapleBuffStat.斗气集中, MapleBuffStat.HP减少无效,
+                MapleBuffStat.召唤兽, MapleBuffStat.牧师祝福,
+//                MapleBuffStat.Seal,
+                MapleBuffStat.WEAKNESS,
+                MapleBuffStat.中毒, MapleBuffStat.无形箭弩, MapleBuffStat.影分身, MapleBuffStat.隐身术);
 
-//        if (chr.getBuffedValue(MapleBuffStat.DARKSIGHT) != null && !chr.isHidden()) {
-//            buffmask |= MapleBuffStat.DARKSIGHT.getValue();
-//        }
-        if (chr.getBuffedValue(MapleBuffStat.斗气集中) != null) {
-            buffmask |= MapleBuffStat.斗气集中.getValue();
-            buffvalue = Integer.valueOf(chr.getBuffedValue(MapleBuffStat.斗气集中).intValue());
+        mask = buffstats.stream()
+                .filter((bs) -> (p.getBuffedValue(bs) != null))
+                .map((bs) -> bs.getValue())
+                .reduce(mask, (accumulator, _item) -> accumulator | _item);
+        mplew.writeInt(mask);
+        for (MapleBuffStat bs : buffstats) {
+            if (p.getBuffedValue(bs) != null) {
+                switch (bs) {
+                    case 移动速度:
+                    case 斗气集中:
+                        mplew.write(p.getBuffedValue(bs).byteValue());
+                        break;
+                    case HP减少无效:
+                    case 召唤兽:
+                    case 牧师祝福:
+                    case WEAKNESS:
+                        mplew.writeInt(p.getBuffSource(bs));
+                        break;
+                    case 中毒:
+                        mplew.writeShort(p.getBuffedValue(bs).shortValue());
+                        mplew.writeInt(p.getBuffSource(bs));
+                        break;
+                }
+            }
         }
-//        if (chr.getBuffedValue(MapleBuffStat.SHADOWPARTNER) != null) {
-//            buffmask |= MapleBuffStat.SHADOWPARTNER.getValue();
-//        }
 
-        mplew.writeInt(buffmask);
+        mplew.write(p.getGender());
+        mplew.write(p.getSkinColor());
+        mplew.writeInt(p.getFace());
+        mplew.write(0);
+        mplew.writeInt(p.getHair());
 
-        PacketHelper.addCharLook(mplew, chr, true, chr.isZeroSecondLook());
+        MapleInventory equip = p.getInventory(MapleInventoryType.EQUIPPED);
+        Map<Short, Integer> myEquip = new LinkedHashMap<>();
+        Map<Short, Integer> maskedEquip = new LinkedHashMap<>();
+
+        equip.list().stream().forEach((item) -> {
+            short pos = (short) Math.abs(item.getPosition());
+            if (pos != 111) {
+                if (pos > 100) {
+                    pos -= 100;
+                    myEquip.put(pos, item.getItemId());
+                } else {
+                    if (myEquip.get(pos) != null) {
+                        maskedEquip.put(pos, item.getItemId());
+                    } else {
+                        myEquip.put(pos, item.getItemId());
+                    }
+                }
+            }
+        });
+
+        myEquip.entrySet().stream().map((entry) -> {
+            mplew.write(entry.getKey());
+            return entry;
+        }).forEach((entry) -> {
+            mplew.writeInt(entry.getValue());
+        });
+        mplew.write(111);
+        Item cWeapon = equip.getItem((short) -111);
+        mplew.writeInt(cWeapon != null ? cWeapon.getItemId() : 0);
+        mplew.write(-1);
+        mplew.writeInt(cWeapon != null ? cWeapon.getItemId() : 0);
 
         mplew.writeInt(0);
-        mplew.writeInt(chr.getItemEffect());
-        mplew.writeInt(chr.getChair());
-        mplew.writeShort(chr.getPosition().x);
-        mplew.writeShort(chr.getPosition().y);
-        mplew.write(chr.getStance());
-        mplew.writeShort(0); // FH
-
-
-//        if (chr.getSpawnPets() != null) {
-//            mplew.write(1);
-//            MaplePet pet = chr.getSpawnPets()[0];
-//            mplew.writeInt(pet.getPetItemId());
-//            mplew.writeMapleAsciiString(pet.getName());
-//            mplew.writeLong(pet.getUniqueId());
-//            mplew.writeShort(pet.getPos().x);
-//            mplew.writeShort(pet.getPos().y);
-//            mplew.write(pet.getStance());
-//            mplew.writeShort(pet.getFh());
-//        } else {
-            mplew.write(0);
-//        }
-
-        // Mini Game & Interaction Boxes
-//        if (chr.getPlayerShop() != null && chr.getPlayerShop().isOwner(chr)) {
-//            addShopBox(mplew, chr.getPlayerShop());
-//        } else if ((MapleMiniGame) chr.getInteraction() != null) {
-//            addAnnounceBox(mplew, chr.getInteraction());
-//        } else {
-            mplew.write(0);
-//        }
-        //List<MapleRing> rings = getRing(chr);
-//        mplew.write(rings.size());
-//        for (MapleRing ring : rings) {
-//            mplew.writeInt(ring.getRingId());
-//            mplew.writeInt(0);
-//            mplew.writeInt(ring.getPartnerRingId());
-//            mplew.writeInt(0);
-//            mplew.writeInt(ring.getItemId());
-//        }
-        Triple rings = chr.getRings(false);
-        addRingInfo(mplew, (List) rings.getLeft());
+        mplew.writeInt(p.getItemEffect());
+        mplew.writeInt(p.getInventory(MapleInventoryType.USE).countById(5110000));
+        mplew.writePos(p.getPosition());
+        mplew.write(p.getStance());
+        mplew.writeShort(0);
+        MaplePet pet = p.getPet(0);
+        mplew.writeBool(pet != null);
+        if (pet != null) {
+            PetPacket.addPetInfo(mplew,null, pet, false);
+        }
+        if (p.getPlayerShop() != null && p.getPlayerShop().isOwner(p)) {
+            PacketHelper.addAnnounceBox(mplew,p);
+        } else {
+            mplew.writeBool(false);
+        }
+        mplew.write(0);//ringLooks
+        //AddRingLooks(wp, p);
+        mplew.write(0);
+        mplew.write(0);
         return mplew.getPacket();
     }
 

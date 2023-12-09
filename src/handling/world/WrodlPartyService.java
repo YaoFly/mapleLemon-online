@@ -150,33 +150,9 @@ public class WrodlPartyService {
             FileoutputUtil.log("no party with the specified partyid exists.");
             return;
         }
-
-        int oldExped = party.getExpeditionId();
-        int oldIndex = -1;
-        if (oldExped > 0) {
-            MapleExpedition exped = getExped(oldExped);
-            if (exped != null) {
-                oldIndex = exped.getIndex(partyId);
-            }
-        }
         switch (operation) {
             case 加入队伍:
                 party.addMember(target);
-                if (party.getMembers().size() < 6) {
-                    break;
-                }
-                PartySearch toRemove = getSearchByParty(partyId);
-                if (toRemove != null) {
-                    removeSearch(toRemove, "队伍人数已满，组队广告已被删除。");
-                } else if (party.getExpeditionId() > 0) {
-                    MapleExpedition exped = getExped(party.getExpeditionId());
-                    if ((exped != null) && (exped.getAllMembers() >= exped.getType().maxMembers)) {
-                        toRemove = getSearchByExped(exped.getId());
-                        if (toRemove != null) {
-                            removeSearch(toRemove, "队伍人数已满，组队广告已被删除。");
-                        }
-                    }
-                }
                 break;
             case 驱逐成员:
             case 离开队伍:

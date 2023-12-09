@@ -2230,6 +2230,8 @@ public final class MapleMap {
             MapScriptMethods.startScript_User(chr.getClient(), onUserEnter);
         }
         sendObjectPlacement(chr);
+        chr.getClient().getSession().write(packet);
+
 //        GameConstants.achievementRatio(chr.getClient());
         if ((GameConstants.isTeamMap(this.mapid)) ) {
             //chr.getClient().getSession().write(MaplePacketCreator.showEquipEffect(chr.getTeam()));
@@ -2246,10 +2248,10 @@ public final class MapleMap {
 //            chr.spawnFamiliar(chr.getSummonedFamiliar());
         }
         if (chr.getParty() != null) {
-//            chr.silentPartyUpdate();
-//            chr.getClient().getSession().write(PartyPacket.updateParty(chr.getClient().getChannel(), chr.getParty(), PartyOperation.更新队伍, null));
-//            chr.updatePartyMemberHP();
-//            chr.receivePartyMemberHP();
+            chr.silentPartyUpdate();
+            chr.getClient().getSession().write(PartyPacket.updateParty(chr.getClient().getChannel(), chr.getParty(), PartyOperation.更新队伍, null));
+            chr.updatePartyMemberHP();
+            chr.receivePartyMemberHP();
         }
         boolean quickMove = false;
         if ((!chr.isInBlockedMap()) && (chr.getLevel() >= 10)) {
@@ -2282,9 +2284,9 @@ public final class MapleMap {
         } finally {
             chr.unlockSummonsReadLock();
         }
-//        if (this.mapEffect != null) {
-//            this.mapEffect.sendStartData(chr.getClient());
-//        }
+        if (this.mapEffect != null) {
+            this.mapEffect.sendStartData(chr.getClient());
+        }
         if ((this.timeLimit > 0) && (getForcedReturnMap() != null)) {
             chr.startMapTimeLimitTask(this.timeLimit, getForcedReturnMap());
         }

@@ -195,7 +195,7 @@ public class PartyHandler {
                         } else if (invited.getQuestNoAdd(MapleQuest.getInstance(122901)) != null) {
                             c.getPlayer().dropMessage(5, new StringBuilder().append("'").append(invited.getName()).append("'玩家处于拒绝组队状态。").toString());
                         } else if (party.getMembers().size() < 6) {
-                            c.getSession().write(PartyPacket.partyStatusMessage(0x20, invited.getName()));//0x1F+1 119ok
+                            c.getPlayer().dropMessage(5, new StringBuilder().append("向 "+ invited.getName() + " 发起组队邀请。").toString());
                             invited.getClient().getSession().write(PartyPacket.partyInvite(c.getPlayer()));
                         } else {
                             c.getPlayer().dropMessage(5, "组队成员已满");

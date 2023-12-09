@@ -35,7 +35,7 @@ public class WorldBuddyService {
                 MapleCharacter chr = ChannelServer.getInstance(ch).getPlayerStorage().getCharacterById(buddy);
                 if (chr != null) {
                     BuddylistEntry ble = chr.getBuddylist().get(characterId);
-                    if ((ble == null) || (!ble.isVisible())) {
+                    if (ble == null) {
                         continue;
                     }
                     int mcChannel;
@@ -46,6 +46,7 @@ public class WorldBuddyService {
                         ble.setChannel(channel);
                         mcChannel = channel - 1;
                     }
+                    chr.getBuddylist().put(ble);
                     chr.getClient().getSession().write(BuddyListPacket.updateBuddyChannel(ble.getCharacterId(), mcChannel, chr.getClient().getAccID()));
                 }
             }
