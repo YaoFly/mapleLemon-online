@@ -36,7 +36,7 @@ public class NPCScriptManager extends AbstractScriptManager {
             if (npcMode == null) {
                 iv = getInvocable("npc/" + npcId + ".js", c, true);
             } else {
-                iv = getInvocable("特殊/" + npcMode + ".js", c, true);
+                iv = getInvocable("npc/" + npcId + "_" + npcMode + ".js", c);
             }
             ScriptEngine scriptengine = (ScriptEngine) iv;
             NPCConversationManager cm = new NPCConversationManager(c, npcId, npcMode, ScriptType.NPC, iv);
