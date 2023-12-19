@@ -1,7 +1,7 @@
 # mapleLemon
 fork from https://github.com/icelemon1314/mapleLemon
 
-已经修复内容：
+原项目已经修复内容：
 
 1. 各职业原版3转
 2. 各职业大部分技能可以使用
@@ -9,8 +9,14 @@ fork from https://github.com/icelemon1314/mapleLemon
 4. 修复商城装备购买和穿戴
 5. 修复逛图，打怪，爆物，拾取等
 6. 修复任务系统
-7. 好友系统
-8. 联机系统
+
+本版本额外修复内容：
+1. 支持多人联机同屏
+2. 支持联机服务架设
+3. 好友系统
+4. 组队系统
+5. 团队技能BUFF
+6. 异常NPC脚本
 
 客户端下载【要翻墙】：
 链接：http://www.mediafire.com/download/hvohdjya8jzr81x/maplestory027.rar
